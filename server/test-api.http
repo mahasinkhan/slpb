@@ -1,0 +1,127 @@
+### Health Check
+GET http://localhost:5000/health
+
+### Register New User (Should fail - only for testing)
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "test123",
+  "firstName": "Test",
+  "lastName": "User"
+}
+
+### Login as Super Admin
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "superadmin@slbrothers.co.uk",
+  "password": "superadmin123"
+}
+
+### Login as Admin
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@slbrothers.co.uk",
+  "password": "admin123"
+}
+
+### Get Profile (Need token from login)
+GET http://localhost:5000/api/auth/profile
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get All Employees
+GET http://localhost:5000/api/employees
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get Employee Statistics
+GET http://localhost:5000/api/employees/statistics
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Create Interview (Admin)
+POST http://localhost:5000/api/interviews
+Authorization: Bearer ADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "candidateName": "John Doe",
+  "candidateEmail": "john.doe@example.com",
+  "candidatePhone": "+44 7700 900000",
+  "position": "Software Engineer",
+  "department": "AI & Software",
+  "interviewDate": "2025-11-15T10:00:00Z",
+  "interviewNotes": "Strong technical background, excellent communication skills"
+}
+
+### Get All Interviews
+GET http://localhost:5000/api/interviews
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get Pending Interview Approvals (Super Admin)
+GET http://localhost:5000/api/interviews?status=PENDING
+Authorization: Bearer SUPERADMIN_TOKEN_HERE
+
+### Approve Interview (Super Admin)
+POST http://localhost:5000/api/interviews/INTERVIEW_ID_HERE/approve
+Authorization: Bearer SUPERADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "superAdminNotes": "Approved. Good candidate for the role."
+}
+
+### Get Pending Employee Approvals
+GET http://localhost:5000/api/employees/pending/approvals
+Authorization: Bearer SUPERADMIN_TOKEN_HERE
+
+### Approve Employee
+POST http://localhost:5000/api/employees/EMPLOYEE_ID_HERE/approve
+Authorization: Bearer SUPERADMIN_TOKEN_HERE
+
+### Initiate Termination (Admin)
+POST http://localhost:5000/api/terminations
+Authorization: Bearer ADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "employeeId": "EMPLOYEE_ID_HERE",
+  "reason": "Performance issues",
+  "adminNotes": "Multiple warnings issued"
+}
+
+### Get Pending Terminations
+GET http://localhost:5000/api/terminations/pending/list
+Authorization: Bearer SUPERADMIN_TOKEN_HERE
+
+### Approve Termination (Super Admin)
+POST http://localhost:5000/api/terminations/TERMINATION_ID_HERE/approve
+Authorization: Bearer SUPERADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "superAdminNotes": "Termination approved"
+}
+
+### Submit Contact Form (Public)
+POST http://localhost:5000/api/contact
+Content-Type: application/json
+
+{
+  "name": "Jane Smith",
+  "email": "jane@example.com",
+  "phone": "+44 7700 900001",
+  "subject": "Business Inquiry",
+  "message": "I would like to know more about your AI solutions."
+}
+
+### Get All Contact Submissions
+GET http://localhost:5000/api/contact
+Authorization: Bearer ADMIN_TOKEN_HERE
+
+### Get Contact Statistics
+GET http://localhost:5000/api/contact/statistics
+Authorization: Bearer ADMIN_TOKEN_HERE

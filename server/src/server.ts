@@ -1,0 +1,106 @@
+// src/server.ts or src/index.ts
+import express, { Application, Request, Response } from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import routes from './routes/index';
+import { errorMiddleware } from './middleware/error.middleware';
+import { loggerMiddleware } from './middleware/logger.middleware';
+
+dotenv.config();
+
+const app: Application = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+const corsOptions = {
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://client-xi-tawny.vercel.app'  
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(loggerMiddleware);
+
+// API Routes - Mount all routes under /api
+app.use('/api', routes);
+
+// Health check
+app.get('/api/health', (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    message: 'SL Brothers Ltd API is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Root route
+app.get('/', (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    message: 'Welcome to SL Brothers Ltd API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      users: '/api/users',
+      employees: '/api/employees',
+      interviews: '/api/interviews',
+      content: '/api/content',
+      contact: '/api/contact',
+      terminations: '/api/terminations'
+    }
+  });
+});
+
+// 404 handler
+app.use('*', (req: Request, res: Response) => {
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.method} ${req.originalUrl}`
+  });
+});
+
+// Error handling middleware (must be last)
+app.use(errorMiddleware);
+
+// Start server
+app.listen(PORT, () => {
+  console.log('='.repeat(50));
+  console.log(`🚀 SL Brothers Backend running on port ${PORT}`);
+  console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`📚 API Base URL: http://localhost:${PORT}/api`);
+  console.log('='.repeat(50));
+  console.log('\n📝 Available Routes:');
+  console.log('  - POST   /api/auth/register');
+  console.log('  - POST   /api/auth/login');
+  console.log('  - GET    /api/auth/profile');
+  console.log('  - GET    /api/users');
+  console.log('  - GET    /api/employees');
+  console.log('  - GET    /api/interviews');
+  console.log('  - GET    /api/content');
+  console.log('  - POST   /api/contact');
+  console.log('  - GET    /api/terminations');
+  console.log('='.repeat(50));
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received: closing HTTP server');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received: closing HTTP server');
+  process.exit(0);
+});
+
+export default app;

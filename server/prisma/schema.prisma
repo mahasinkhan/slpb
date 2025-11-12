@@ -1,0 +1,176 @@
+// schema.prisma - WITH Employee Models
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  EMPLOYEE
+}
+
+enum InterviewStatus {
+  PENDING
+  SCHEDULED
+  COMPLETED
+  APPROVED
+  REJECTED
+}
+
+enum EmploymentStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  TERMINATED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  role      Role     @default(EMPLOYEE)
+  status    EmploymentStatus @default(INACTIVE)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  
+  // Relations
+  employee    Employee?
+  interviewsAsCandidiate Interview[] @relation("CandidateInterviews")
+  interviewsAsInterviewer Interview[] @relation("InterviewerInterviews")
+  createdContent Content[] @relation("ContentCreator")
+  employeesHired Employee[] @relation("EmployeeHirer")
+  
+  @@map("users")
+}
+
+model Employee {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  employeeId String   @unique
+  department String
+  position   String
+  joinDate   DateTime
+  status     EmploymentStatus @default(ACTIVE)
+  salary     Float?
+  
+  hiredById  String?
+  hiredAt    DateTime?
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hiredBy    User? @relation("EmployeeHirer", fields: [hiredById], references: [id])
+  termination EmployeeTermination?
+  
+  @@map("employees")
+}
+
+model EmployeeTermination {
+  id           String   @id @default(uuid())
+  employeeId   String   @unique
+  reason       String
+  terminatedAt DateTime @default(now())
+  terminatedBy String?
+  notes        String?
+  
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  createdAt    DateTime @default(now())
+  
+  @@map("employee_terminations")
+}
+
+model Interview {
+  id          String   @id @default(uuid())
+  candidateId String
+  interviewerId String?
+  position    String
+  division    String
+  status      InterviewStatus @default(PENDING)
+  scheduledAt DateTime?
+  notes       String?
+  feedback    String?
+  
+  approvedBy  String?
+  approvedAt  DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  candidate   User @relation("CandidateInterviews", fields: [candidateId], references: [id], onDelete: Cascade)
+  interviewer User? @relation("InterviewerInterviews", fields: [interviewerId], references: [id])
+  
+  @@map("interviews")
+}
+
+model Content {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  type        String   // page, blog, news, project
+  slug        String   @unique
+  content     String   // JSON or HTML content
+  published   Boolean  @default(false)
+  
+  createdById String
+  createdBy   User @relation("ContentCreator", fields: [createdById], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("content")
+}
+
+model Division {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  sicCode     String
+  active      Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("divisions")
+}
+
+model ContactSubmission {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  responded Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+  
+  @@map("contact_submissions")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String?
+  changes   String?  // JSON string of changes
+  ipAddress String?
+  
+  createdAt DateTime @default(now())
+  
+  @@map("audit_logs")
+}
