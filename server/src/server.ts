@@ -1,12 +1,25 @@
 // src/server.ts or src/index.ts
+import dotenv from 'dotenv';
+
+// CRITICAL: Load environment variables FIRST, before any other imports
+const result = dotenv.config();
+
+if (result.error) {
+  console.error('❌ Error loading .env file:', result.error);
+  process.exit(1);
+}
+
+console.log('='.repeat(50));
+console.log('✅ .env file loaded successfully');
+console.log('🔍 DATABASE_URL:', process.env.DATABASE_URL ? '✓ Set (' + process.env.DATABASE_URL.substring(0, 30) + '...)' : '✗ Missing');
+console.log('🔍 JWT_SECRET:', process.env.JWT_SECRET ? '✓ Set' : '✗ Missing');
+console.log('='.repeat(50));
+
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import routes from './routes/index';
 import { errorMiddleware } from './middleware/error.middleware';
 import { loggerMiddleware } from './middleware/logger.middleware';
-
-dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -16,7 +29,7 @@ const corsOptions = {
   origin: [
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://slbnm-8u0982t43-mahasin-khans-projects.vercel.app/login'  
+    'https://slbnm.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
