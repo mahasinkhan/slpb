@@ -1,3 +1,4 @@
+import { Smartphone, XCircle } from 'lucide-react';
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -7,7 +8,6 @@ import {
   Shield,
   Mail,
   Bell,
-  Lock,
   Key,
   Zap,
   Database,
@@ -20,13 +20,13 @@ import {
   Eye,
   EyeOff,
   Package,
-  BarChart, // Added BarChart for analytics in Feature Flags
-  DownloadCloud // Added DownloadCloud for backup action
+  BarChart,
+  DownloadCloud
 } from 'lucide-react'
 
 const GlobalSettings = () => {
   const [activeTab, setActiveTab] = useState('general')
-  const [saveStatus, setSaveStatus] = useState(null)
+  const [saveStatus, setSaveStatus] = useState<string | null>(null)
   const [showApiKey, setShowApiKey] = useState(false)
 
   // Settings state
@@ -108,15 +108,31 @@ const GlobalSettings = () => {
   ]
 
   // Helper function to handle setting changes
-  const handleChange = (key, value) => {
+  const handleChange = (key: string, value: any) => {
     setSettings(prevSettings => ({
       ...prevSettings,
       [key]: value
     }))
   }
 
-  // Common input component for cleaner rendering
-  const SettingsInput = ({ label, type = 'text', value, onChange, options = [], min, max }) => (
+  // Common input component for cleaner rendering - FIXED with optional min/max
+  const SettingsInput = ({ 
+    label, 
+    type = 'text', 
+    value, 
+    onChange, 
+    options = [], 
+    min, 
+    max 
+  }: {
+    label: string;
+    type?: string;
+    value: any;
+    onChange: (val: any) => void;
+    options?: { value: string; label: string }[];
+    min?: number;
+    max?: number;
+  }) => (
     <div>
       <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
       {type === 'select' ? (
@@ -142,8 +158,22 @@ const GlobalSettings = () => {
     </div>
   )
 
-  // Toggle switch component
-  const ToggleSetting = ({ label, description, checked, onChange, Icon, color = 'blue' }) => (
+  // Toggle switch component - FIXED with proper typing
+  const ToggleSetting = ({ 
+    label, 
+    description, 
+    checked, 
+    onChange, 
+    Icon, 
+    color = 'blue' 
+  }: {
+    label: string;
+    description?: string;
+    checked: boolean;
+    onChange: (val: boolean) => void;
+    Icon?: any;
+    color?: string;
+  }) => (
     <div className={`p-4 bg-${color}-50 border-2 border-${color}-200 rounded-xl`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -301,9 +331,9 @@ const GlobalSettings = () => {
               />
 
               <div className="grid md:grid-cols-2 gap-6">
-                <SettingsInput label="Session Timeout (seconds)" type="number" value={settings.sessionTimeout} onChange={(val) => handleChange('sessionTimeout', val)} />
-                <SettingsInput label="Max Login Attempts" type="number" value={settings.maxLoginAttempts} onChange={(val) => handleChange('maxLoginAttempts', val)} />
-                <SettingsInput label="Password Min Length" type="number" value={settings.passwordMinLength} onChange={(val) => handleChange('passwordMinLength', val)} />
+                <SettingsInput label="Session Timeout (seconds)" type="number" value={settings.sessionTimeout} onChange={(val) => handleChange('sessionTimeout', val)} min={60} max={86400} />
+                <SettingsInput label="Max Login Attempts" type="number" value={settings.maxLoginAttempts} onChange={(val) => handleChange('maxLoginAttempts', val)} min={1} max={10} />
+                <SettingsInput label="Password Min Length" type="number" value={settings.passwordMinLength} onChange={(val) => handleChange('passwordMinLength', val)} min={8} max={32} />
                 
                 <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
                   <input
@@ -340,7 +370,7 @@ const GlobalSettings = () => {
                 ]}
               />
               <SettingsInput label="SMTP Host" value={settings.smtpHost} onChange={(val) => handleChange('smtpHost', val)} />
-              <SettingsInput label="SMTP Port" type="number" value={settings.smtpPort} onChange={(val) => handleChange('smtpPort', val)} />
+              <SettingsInput label="SMTP Port" type="number" value={settings.smtpPort} onChange={(val) => handleChange('smtpPort', val)} min={1} max={65535} />
               <SettingsInput label="SMTP Username" value={settings.smtpUsername} onChange={(val) => handleChange('smtpUsername', val)} />
               <SettingsInput label="From Email" type="email" value={settings.fromEmail} onChange={(val) => handleChange('fromEmail', val)} />
               <SettingsInput label="From Name" value={settings.fromName} onChange={(val) => handleChange('fromName', val)} />
@@ -353,7 +383,7 @@ const GlobalSettings = () => {
           </div>
         )}
         
-        {/* Notifications Settings (Simplified - similar structure to others) */}
+        {/* Notifications Settings */}
         {activeTab === 'notifications' && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Notification Settings 🔔</h2>
@@ -361,18 +391,21 @@ const GlobalSettings = () => {
             <div className="space-y-4">
               <ToggleSetting
                 label="Email Notifications"
+                description="Receive notifications via email"
                 checked={settings.emailNotifications}
                 onChange={(val) => handleChange('emailNotifications', val)}
                 Icon={Mail}
               />
               <ToggleSetting
                 label="Push Notifications"
+                description="Receive browser push notifications"
                 checked={settings.pushNotifications}
                 onChange={(val) => handleChange('pushNotifications', val)}
                 Icon={Smartphone}
               />
               <ToggleSetting
                 label="SMS Notifications"
+                description="Receive notifications via SMS"
                 checked={settings.smsNotifications}
                 onChange={(val) => handleChange('smsNotifications', val)}
                 Icon={Bell}
@@ -410,8 +443,8 @@ const GlobalSettings = () => {
               <SettingsInput label="Webhook Secret" value={settings.webhookSecret} onChange={(val) => handleChange('webhookSecret', val)} />
               
               <div className="grid md:grid-cols-2 gap-6">
-                <SettingsInput label="Rate Limit (requests/hour)" type="number" value={settings.apiRateLimit} onChange={(val) => handleChange('apiRateLimit', val)} />
-                <SettingsInput label="Timeout (seconds)" type="number" value={settings.apiTimeout} onChange={(val) => handleChange('apiTimeout', val)} />
+                <SettingsInput label="Rate Limit (requests/hour)" type="number" value={settings.apiRateLimit} onChange={(val) => handleChange('apiRateLimit', val)} min={100} max={10000} />
+                <SettingsInput label="Timeout (seconds)" type="number" value={settings.apiTimeout} onChange={(val) => handleChange('apiTimeout', val)} min={5} max={300} />
               </div>
 
               <button className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all">
@@ -438,7 +471,7 @@ const GlobalSettings = () => {
                   key={feature.key}
                   label={feature.label}
                   description={feature.description}
-                  checked={settings[feature.key]}
+                  checked={settings[feature.key as keyof typeof settings] as boolean}
                   onChange={(val) => handleChange(feature.key, val)}
                   Icon={feature.icon}
                   color={feature.color}
@@ -463,7 +496,7 @@ const GlobalSettings = () => {
                   key={item.key}
                   label={item.label}
                   description={item.description}
-                  checked={settings[item.key]}
+                  checked={settings[item.key as keyof typeof settings] as boolean}
                   onChange={(val) => handleChange(item.key, val)}
                   Icon={item.icon}
                   color="blue"
@@ -471,13 +504,13 @@ const GlobalSettings = () => {
               ))}
 
               <div className="grid md:grid-cols-2 gap-6 pt-2">
-                <SettingsInput label="Cache TTL (seconds)" type="number" value={settings.cacheTTL} onChange={(val) => handleChange('cacheTTL', val)} />
+                <SettingsInput label="Cache TTL (seconds)" type="number" value={settings.cacheTTL} onChange={(val) => handleChange('cacheTTL', val)} min={60} max={86400} />
               </div>
             </div>
           </div>
         )}
 
-        {/* Backup Settings - COMPLETED SECTION */}
+        {/* Backup Settings */}
         {activeTab === 'backup' && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Backup Configuration 💾</h2>
@@ -504,9 +537,8 @@ const GlobalSettings = () => {
                 ]}
               />
 
-              <SettingsInput label="Retention (days)" type="number" value={settings.backupRetention} onChange={(val) => handleChange('backupRetention', val)} min={1} />
+              <SettingsInput label="Retention (days)" type="number" value={settings.backupRetention} onChange={(val) => handleChange('backupRetention', val)} min={1} max={365} />
 
-              {/* Added Backup Location setting */}
               <SettingsInput
                 label="Backup Location"
                 type="select"

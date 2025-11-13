@@ -526,11 +526,11 @@ const UserActivity = () => {
                   <p className="text-sm text-gray-700 mb-3 font-semibold">Additional Information</p>
                   <div className="space-y-2">
                     {Object.entries(selectedActivity.details).map(([key, value]) => (
-                      <div key={key} className="flex justify-between text-sm">
-                        <span className="text-gray-600 capitalize">{key.replace('_', ' ')}:</span>
-                        <span className="font-semibold text-gray-900">{value}</span>
-                      </div>
-                    ))}
+  <div key={key} className="flex justify-between text-sm">
+    <span className="text-gray-600 capitalize">{key.replace('_', ' ')}:</span>
+    <span className="font-semibold text-gray-900">{String(value)}</span>
+  </div>
+))}
                   </div>
                 </div>
 

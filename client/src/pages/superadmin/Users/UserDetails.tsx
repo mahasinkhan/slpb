@@ -25,7 +25,8 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle,
-  BarChart3
+  BarChart3,
+  XCircle  // Added this import
 } from 'lucide-react'
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 

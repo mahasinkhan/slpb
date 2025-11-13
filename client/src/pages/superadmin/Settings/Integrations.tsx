@@ -26,13 +26,27 @@ import {
   Link
 } from 'lucide-react'
 
+interface Integration {
+  id: number;
+  name: string;
+  category: string;
+  icon: any;
+  description: string;
+  status: string;
+  color: string;
+  config: {
+    [key: string]: string;
+  } | null;
+  features: string[];
+}
+
 const Integrations = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterCategory, setFilterCategory] = useState('all')
-  const [selectedIntegration, setSelectedIntegration] = useState(null)
-  const [showApiKey, setShowApiKey] = useState({})
+  const [selectedIntegration, setSelectedIntegration] = useState<Integration | null>(null)
+  const [showApiKey, setShowApiKey] = useState<{[key: string]: boolean}>({})
 
-  const integrations = [
+  const integrations: Integration[] = [
     {
       id: 1,
       name: 'Stripe',
@@ -195,8 +209,8 @@ const Integrations = () => {
     return matchesSearch && matchesCategory
   })
 
-  const getIconColor = (color) => {
-    const colors = {
+  const getIconColor = (color: string) => {
+    const colors: {[key: string]: string} = {
       purple: 'text-purple-600',
       blue: 'text-blue-600',
       orange: 'text-orange-600',
@@ -208,8 +222,8 @@ const Integrations = () => {
     return colors[color] || 'text-gray-600'
   }
 
-  const getBgColor = (color) => {
-    const colors = {
+  const getBgColor = (color: string) => {
+    const colors: {[key: string]: string} = {
       purple: 'bg-purple-50',
       blue: 'bg-blue-50',
       orange: 'bg-orange-50',
@@ -486,7 +500,7 @@ const Integrations = () => {
                         <div key={idx} className="p-3 bg-gray-50 rounded-xl">
                           <p className="text-sm text-gray-600 mb-1 capitalize">{key.replace(/([A-Z])/g, ' $1')}</p>
                           <div className="flex items-center justify-between">
-                            <code className="text-sm font-mono text-gray-900">{value}</code>
+                            <code className="text-sm font-mono text-gray-900">{String(value)}</code>
                             {key.includes('Key') || key.includes('key') ? (
                               <button
                                 onClick={() => setShowApiKey(prev => ({ ...prev, [key]: !prev[key] }))}
